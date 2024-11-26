@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trading View Chart</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Base reset and box-sizing */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Body styling */
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+            margin: 0;
+            overflow-y: auto;  /* Ensures scrolling is always possible */
+        }
+
+        /* Form container styling */
+        form {
+            background: linear-gradient(145deg, #ffffff, #f2f2f2);
+            box-shadow: 0 4px 5px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        form:hover {
+            transform: scale(1.005);
+            box-shadow: 0 8px 11px rgba(0, 0, 0, 0.15), 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        h1 {
+            text-align: center;
+            color: #3583db;
+            font-size: 2.0rem;
+            margin-bottom: 20px;
+            margin-top: 15px;
+        }
+
+        /* Input & Select styling */
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 16px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3583db;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.6);
+        }
+
+        input[type="submit"] {
+            background-color: #3583db;
+            color: white;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #106ad0;
+        }
+
+        /* Error message styling */
+        p {
+            color: #D0021B;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        /* Chart container styling */
+        #chart {
+            width: 98%;
+            min-height: 400px;  /* Use min-height to ensure enough space for the chart */
+            background: #fff;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-left: 15px;
+            margin-right: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            form {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            input, select, input[type="submit"] {
+                font-size: 1rem;
+                padding: 10px;
+            }
+
+            #chart {
+                min-height: 300px;  /* Reduce height for mobile view */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Trading View Chart</h1>
+    <form method="POST">
+        <input type="text" name="symbol" placeholder="Symbol (e.g., BTCUSDT)" value="{{ symbol }}" required>
+        
+        <select name="interval" required>
+            <option value="1m" {% if interval == '1m' %}selected{% endif %}>1 Minute</option>
+            <option value="5m" {% if interval == '5m' %}selected{% endif %}>5 Minutes</option>
+            <option value="15m" {% if interval == '15m' %}selected{% endif %}>15 Minutes</option>
+            <option value="30m" {% if interval == '30m' %}selected{% endif %}>30 Minutes</option>
+            <option value="1h" {% if interval == '1h' %}selected{% endif %}>1 Hour</option>
+            <option value="4h" {% if interval == '4h' %}selected{% endif %}>4 Hours</option>
+            <option value="1d" {% if interval == '1d' %}selected{% endif %}>1 Day</option>
+        </select>
+        
+        <label>Start Date:</label>
+        <input type="date" name="start_date" value="{{ start_date }}" required>
+        
+        <label>End Date:</label>
+        <input type="date" name="end_date" value="{{ end_date }}" required>
+        
+        <input type="submit" value="View Candles">
+    </form>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+
+    {% if graphJSON %}
+        <div id="chart"></div>
+        <script>
+            var graphs = {{ graphJSON | safe }};
+            Plotly.newPlot('chart', graphs.data, graphs.layout);
+        </script>
+    {% endif %}
+</body>
+</html>
